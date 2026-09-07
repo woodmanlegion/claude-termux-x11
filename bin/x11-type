@@ -4,7 +4,7 @@
 set -euo pipefail
 
 DISPLAY_VAL="${X11_DISPLAY:-:1}"
-DELAY=12  # ms between keystrokes
+DELAY=30  # ms between keystrokes — 12ms too fast when tab isn't settled
 
 while [[ $# -gt 0 ]]; do
   case "$1" in

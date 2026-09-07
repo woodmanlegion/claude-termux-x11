@@ -57,7 +57,7 @@ const TOOLS = [
       required: ["text"],
       properties: {
         text: { type: "string", description: "Text to type" },
-        delay: { type: "integer", description: "Ms between keystrokes (default 12)", default: 12 },
+        delay: { type: "integer", description: "Ms between keystrokes (default 30)", default: 30 },
       },
     },
   },
