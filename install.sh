@@ -42,19 +42,21 @@ if [[ ! -f "$MCP_CONFIG" ]]; then
   echo '{"mcpServers":{}}' > "$MCP_CONFIG"
 fi
 
-node - "$MCP_CONFIG" "$REPO_DIR/mcp-server/index.js" <<'EOF'
-const fs = require("fs");
-const path = process.argv[2];
-const entry = process.argv[3];
-const cfg = JSON.parse(fs.readFileSync(path, "utf8"));
-cfg.mcpServers = cfg.mcpServers ?? {};
-cfg.mcpServers["claude-termux-x11"] = {
-  command: "node",
-  args: [entry],
-  env: {}
-};
-fs.writeFileSync(path, JSON.stringify(cfg, null, 2) + "\n");
-console.log("[claude-termux-x11] registered MCP server in", path);
+python3 - <<EOF
+import json, sys
+path = "$MCP_CONFIG"
+entry = "$REPO_DIR/mcp-server/index.js"
+with open(path) as f:
+    cfg = json.load(f)
+cfg.setdefault("mcpServers", {})["claude-termux-x11"] = {
+    "command": "node",
+    "args": [entry],
+    "env": {}
+}
+with open(path, "w") as f:
+    json.dump(cfg, f, indent=2)
+    f.write("\n")
+print("[claude-termux-x11] registered MCP server in", path)
 EOF
 
 echo "[claude-termux-x11] done. Restart Claude Code to pick up the MCP server."

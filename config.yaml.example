@@ -1,7 +1,7 @@
 core:
   display: ":1"
   bin_dir: "~/.config/claude-termux-x11/bin"
-  screenshot_dir: "/tmp/x11-shots"
+  screenshot_dir: "~/.cache/claude-termux-x11/shots"
 
 mcp:
   screenshot_return: base64   # base64 | path
