@@ -5,7 +5,6 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$HOME/.config/claude-termux-x11"
-MCP_CONFIG="$HOME/.claude/mcp.json"
 
 echo "[claude-termux-x11] installing..."
 
@@ -37,27 +36,13 @@ fi
 cd "$REPO_DIR"
 
 # 4. Register MCP server with Claude Code
-mkdir -p "$(dirname "$MCP_CONFIG")"
-if [[ ! -f "$MCP_CONFIG" ]]; then
-  echo '{"mcpServers":{}}' > "$MCP_CONFIG"
+if command -v claude &>/dev/null; then
+  claude mcp add --scope user claude-termux-x11 node "$REPO_DIR/mcp-server/index.js" 2>&1 \
+    | sed 's/^/[claude-termux-x11] /'
+else
+  echo "[claude-termux-x11] WARNING: claude CLI not found — register manually with:"
+  echo "  claude mcp add --scope user claude-termux-x11 node $REPO_DIR/mcp-server/index.js"
 fi
-
-python3 - <<EOF
-import json, sys
-path = "$MCP_CONFIG"
-entry = "$REPO_DIR/mcp-server/index.js"
-with open(path) as f:
-    cfg = json.load(f)
-cfg.setdefault("mcpServers", {})["claude-termux-x11"] = {
-    "command": "node",
-    "args": [entry],
-    "env": {}
-}
-with open(path, "w") as f:
-    json.dump(cfg, f, indent=2)
-    f.write("\n")
-print("[claude-termux-x11] registered MCP server in", path)
-EOF
 
 echo "[claude-termux-x11] done. Restart Claude Code to pick up the MCP server."
 echo "[claude-termux-x11] openclaw plugin: symlink or copy openclaw-plugin/plugin/ into your openclaw plugin load path."
