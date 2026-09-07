@@ -1,0 +1,11 @@
+core:
+  display: ":1"
+  bin_dir: "~/.config/claude-termux-x11/bin"
+  screenshot_dir: "/tmp/x11-shots"
+
+mcp:
+  screenshot_return: base64   # base64 | path
+
+openclaw:
+  screenshot_return: path     # path | base64
+  plugin_path: "~/.openclaw/workspace/skills/claude-termux-x11"

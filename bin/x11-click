@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Click at x,y on the X11 display.
+# Usage: x11-click [--display :1] [--button 1] <x> <y>
+set -euo pipefail
+
+DISPLAY_VAL="${X11_DISPLAY:-:1}"
+BUTTON=1
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --display) DISPLAY_VAL="$2"; shift 2 ;;
+    --button)  BUTTON="$2"; shift 2 ;;
+    *)         break ;;
+  esac
+done
+
+X="${1:?x coordinate required}"
+Y="${2:?y coordinate required}"
+
+DISPLAY="$DISPLAY_VAL" xdotool mousemove "$X" "$Y" click "$BUTTON"
+echo "clicked $X,$Y button $BUTTON"

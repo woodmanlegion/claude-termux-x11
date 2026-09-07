@@ -1,0 +1,10 @@
+{
+  "name": "@woodmanlegion/claude-termux-x11-openclaw",
+  "version": "0.1.0",
+  "description": "openclaw plugin adapter — X11/VNC desktop control",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  }
+}

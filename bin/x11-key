@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Send a key or key combo to the focused window.
+# Usage: x11-key [--display :1] [--window <id>] <key>
+# Examples: x11-key ctrl+l    x11-key Return    x11-key super+d
+set -euo pipefail
+
+DISPLAY_VAL="${X11_DISPLAY:-:1}"
+WINDOW=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --display) DISPLAY_VAL="$2"; shift 2 ;;
+    --window)  WINDOW="$2"; shift 2 ;;
+    *)         break ;;
+  esac
+done
+
+KEY="${1:?key required}"
+
+if [[ -n "$WINDOW" ]]; then
+  DISPLAY="$DISPLAY_VAL" xdotool key --window "$WINDOW" "$KEY"
+else
+  DISPLAY="$DISPLAY_VAL" xdotool key "$KEY"
+fi
+echo "key: $KEY"

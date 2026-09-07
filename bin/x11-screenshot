@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Take a screenshot of the X11 display.
+# Usage: x11-screenshot [--base64] [--display :1] [outfile]
+# Without --base64, prints the file path. With --base64, prints base64 PNG to stdout.
+set -euo pipefail
+
+DISPLAY_VAL="${X11_DISPLAY:-:1}"
+BASE64=0
+OUTFILE=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --base64)   BASE64=1; shift ;;
+    --display)  DISPLAY_VAL="$2"; shift 2 ;;
+    *)          OUTFILE="$1"; shift ;;
+  esac
+done
+
+if [[ -z "$OUTFILE" ]]; then
+  SHOT_DIR="${X11_SCREENSHOT_DIR:-/tmp/x11-shots}"
+  mkdir -p "$SHOT_DIR"
+  OUTFILE="$SHOT_DIR/shot-$(date +%s%3N).png"
+fi
+
+DISPLAY="$DISPLAY_VAL" scrot "$OUTFILE"
+
+if [[ "$BASE64" -eq 1 ]]; then
+  base64 "$OUTFILE"
+else
+  echo "$OUTFILE"
+fi

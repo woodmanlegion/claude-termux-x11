@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# List open windows or focus one by name/id.
+# Usage: x11-windows [--display :1] [--focus <name|id>]
+# Without --focus, prints JSON array of {id, name, pid}.
+set -euo pipefail
+
+DISPLAY_VAL="${X11_DISPLAY:-:1}"
+FOCUS=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --display) DISPLAY_VAL="$2"; shift 2 ;;
+    --focus)   FOCUS="$2"; shift 2 ;;
+    *)         shift ;;
+  esac
+done
+
+if [[ -n "$FOCUS" ]]; then
+  DISPLAY="$DISPLAY_VAL" xdotool search --name "$FOCUS" windowfocus --sync
+  echo "focused: $FOCUS"
+  exit 0
+fi
+
+# List all windows as JSON
+echo "["
+first=1
+while IFS= read -r wid; do
+  name=$(DISPLAY="$DISPLAY_VAL" xdotool getwindowname "$wid" 2>/dev/null || echo "")
+  pid=$(DISPLAY="$DISPLAY_VAL" xdotool getwindowpid "$wid" 2>/dev/null || echo "")
+  [[ "$first" -eq 0 ]] && echo ","
+  printf '  {"id":"%s","name":"%s","pid":"%s"}' "$wid" "$name" "$pid"
+  first=0
+done < <(DISPLAY="$DISPLAY_VAL" xdotool search --onlyvisible --name "" 2>/dev/null)
+echo ""
+echo "]"
