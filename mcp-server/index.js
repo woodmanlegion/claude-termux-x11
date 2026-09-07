@@ -83,6 +83,18 @@ const TOOLS = [
       },
     },
   },
+  {
+    name: "x11_browser_pair",
+    description: "Re-pair the OpenClaw Chrome extension after a gateway restart. Reads the current pairing string from `openclaw browser extension pair` and automates the extension popup to unpair + re-pair.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        icon_x: { type: "integer", description: "X pixel of the OpenClaw toolbar icon (default 875)" },
+        icon_y: { type: "integer", description: "Y pixel of the OpenClaw toolbar icon (default 91)" },
+      },
+      additionalProperties: false,
+    },
+  },
 ];
 
 // ── Handler ───────────────────────────────────────────────────────────────────
@@ -117,6 +129,14 @@ async function callTool(name, args) {
       const { focus } = args ?? {};
       const flags = focus ? ["--focus", focus] : [];
       const { stdout } = await execFileP(bin("x11-windows"), flags, { env: env() });
+      return [{ type: "text", text: stdout.trim() }];
+    }
+    case "x11_browser_pair": {
+      const { icon_x, icon_y } = args ?? {};
+      const flags = [];
+      if (icon_x != null) flags.push("--icon-x", String(icon_x));
+      if (icon_y != null) flags.push("--icon-y", String(icon_y));
+      const { stdout } = await execFileP(bin("x11-browser-pair"), flags, { env: env() });
       return [{ type: "text", text: stdout.trim() }];
     }
     default:

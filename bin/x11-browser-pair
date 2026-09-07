@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# Automate OpenClaw browser extension pairing after a gateway restart.
+#
+# Usage: x11-browser-pair [--display :1] [--icon-x 875] [--icon-y 91]
+#
+# Reads the current pairing string from `openclaw browser extension pair`,
+# then drives the Chromium extension popup via xdotool to unpair (if needed)
+# and re-pair with the fresh token.
+#
+# Coordinate defaults are tuned for the Termux/XFCE VNC setup at 1024×768.
+# Override with --icon-x / --icon-y if your Chromium toolbar is elsewhere.
+set -euo pipefail
+
+DISPLAY_VAL="${X11_DISPLAY:-:1}"
+ICON_X=875
+ICON_Y=91
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --display) DISPLAY_VAL="$2"; shift 2 ;;
+    --icon-x)  ICON_X="$2";      shift 2 ;;
+    --icon-y)  ICON_Y="$2";      shift 2 ;;
+    -h|--help)
+      sed -n '2,/^[^#]/p' "$0" | grep '^#' | sed 's/^# \{0,1\}//'
+      exit 0 ;;
+    *) echo "Unknown arg: $1" >&2; exit 1 ;;
+  esac
+done
+
+export DISPLAY="$DISPLAY_VAL"
+
+# ── 1. Get current pairing string ─────────────────────────────────────────────
+PAIR_LINE=$(openclaw browser extension pair 2>/dev/null | grep '^ws://')
+if [[ -z "$PAIR_LINE" ]]; then
+  echo "ERROR: Could not read pairing string from openclaw." >&2
+  exit 1
+fi
+echo "Pairing string: $PAIR_LINE"
+
+# ── 2. Copy to clipboard (fallback: type directly) ────────────────────────────
+if command -v xclip &>/dev/null; then
+  echo -n "$PAIR_LINE" | xclip -selection clipboard
+  PASTE_CMD="ctrl+a ctrl+v"
+else
+  PASTE_CMD=""
+fi
+
+# ── 3. Focus Chromium ─────────────────────────────────────────────────────────
+WID=$(xdotool search --onlyvisible --class "[Cc]hromium" 2>/dev/null | head -1 || true)
+if [[ -n "$WID" ]]; then
+  xdotool windowfocus --sync "$WID"
+fi
+sleep 0.3
+
+# ── 4. Click extension icon to open popup ────────────────────────────────────
+xdotool mousemove "$ICON_X" "$ICON_Y"
+xdotool click 1
+sleep 0.8
+
+# ── 5. Click "Unpair" if visible (position in popup when connected) ───────────
+# Popup layout (connected state):   title ~130, Unpair ~243
+# Popup layout (unpaired state):    title ~163, input ~207, Pair ~261
+# Clicking at the Unpair position when already unpaired is harmless.
+POPUP_UNPAIR_X=$((ICON_X - 159))  # popup is ~318px wide, centred left of icon
+POPUP_UNPAIR_Y=243
+xdotool mousemove "$POPUP_UNPAIR_X" "$POPUP_UNPAIR_Y"
+xdotool click 1
+sleep 0.6
+
+# ── 6. Click into pairing input and type/paste the string ────────────────────
+POPUP_INPUT_X=$((ICON_X - 159))
+POPUP_INPUT_Y=207
+xdotool mousemove "$POPUP_INPUT_X" "$POPUP_INPUT_Y"
+xdotool click 1
+sleep 0.3
+xdotool key ctrl+a
+sleep 0.1
+
+if [[ -n "$PASTE_CMD" ]]; then
+  xdotool key ctrl+v
+else
+  # Type character by character with a small delay
+  xdotool type --delay 20 "$PAIR_LINE"
+fi
+sleep 0.3
+
+# ── 7. Click "Pair" ───────────────────────────────────────────────────────────
+POPUP_PAIR_X=$((ICON_X - 159))
+POPUP_PAIR_Y=261
+xdotool mousemove "$POPUP_PAIR_X" "$POPUP_PAIR_Y"
+xdotool click 1
+sleep 1.0
+
+echo "Done. Check the extension badge — it should show ON/Connected."
