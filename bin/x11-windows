@@ -16,7 +16,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -n "$FOCUS" ]]; then
-  DISPLAY="$DISPLAY_VAL" xdotool search --name "$FOCUS" windowfocus --sync
+  DISPLAY="$DISPLAY_VAL" xdotool search --name "$FOCUS" windowactivate --sync
   echo "focused: $FOCUS"
   exit 0
 fi
