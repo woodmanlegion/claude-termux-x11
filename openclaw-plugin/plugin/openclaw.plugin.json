@@ -1,5 +1,5 @@
 {
-  "name": "claude-termux-x11",
+  "name": "termux-x11",
   "version": "0.1.0",
   "description": "X11/VNC desktop control tools for openclaw agents",
   "type": "skill",
