@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// MCP server adapter for claude-termux-x11.
+// MCP server adapter for termux-x11.
 // Exposes x11-screenshot, x11-click, x11-type, x11-key, x11-windows as MCP tools.
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -14,14 +14,14 @@ const execFileP = promisify(execFile);
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
-const CONFIG_PATH = resolve(process.env.HOME, ".config/claude-termux-x11/config.yaml");
+const CONFIG_PATH = resolve(process.env.HOME, ".config/termux-x11/config.yaml");
 let cfg = { core: {}, mcp: {} };
 if (existsSync(CONFIG_PATH)) {
   cfg = yaml.load(readFileSync(CONFIG_PATH, "utf8")) ?? cfg;
 }
 
 const DISPLAY   = cfg.core?.display        ?? process.env.X11_DISPLAY ?? ":1";
-const BIN_DIR   = (cfg.core?.bin_dir       ?? "~/.config/claude-termux-x11/bin").replace(/^~/, process.env.HOME);
+const BIN_DIR   = (cfg.core?.bin_dir       ?? "~/.config/termux-x11/bin").replace(/^~/, process.env.HOME);
 const SHOT_DIR  = (cfg.core?.screenshot_dir ?? "/tmp/x11-shots").replace(/^~/, process.env.HOME);
 const SHOT_MODE = cfg.mcp?.screenshot_return ?? "base64";
 
@@ -147,7 +147,7 @@ async function callTool(name, args) {
 // ── Server ────────────────────────────────────────────────────────────────────
 
 const server = new Server(
-  { name: "claude-termux-x11", version: "0.1.0" },
+  { name: "termux-x11", version: "0.1.0" },
   { capabilities: { tools: {} } }
 );
 
