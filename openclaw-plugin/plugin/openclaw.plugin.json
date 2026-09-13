@@ -1,10 +1,17 @@
 {
-  "name": "termux-x11",
+  "id": "termux-x11",
+  "name": "Termux X11",
   "version": "0.1.0",
   "description": "X11/VNC desktop control tools for openclaw agents",
-  "type": "skill",
-  "entry": "index.js",
-  "openclaw": {
-    "minVersion": "2026.7.0"
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "contracts": {
+    "tools": ["x11_screenshot", "x11_click", "x11_type", "x11_key", "x11_windows"]
+  },
+  "activation": {
+    "onStartup": true
   }
 }
