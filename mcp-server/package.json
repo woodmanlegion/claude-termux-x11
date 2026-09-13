@@ -1,11 +1,11 @@
 {
-  "name": "@woodmanlegion/claude-termux-x11-mcp",
+  "name": "@woodmanlegion/termux-x11-mcp",
   "version": "0.1.0",
   "description": "MCP server — X11/VNC desktop control for Claude Code",
   "type": "module",
   "main": "index.js",
   "bin": {
-    "claude-termux-x11-mcp": "./index.js"
+    "termux-x11-mcp": "./index.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
