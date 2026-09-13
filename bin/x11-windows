@@ -30,6 +30,6 @@ while IFS= read -r wid; do
   [[ "$first" -eq 0 ]] && echo ","
   printf '  {"id":"%s","name":"%s","pid":"%s"}' "$wid" "$name" "$pid"
   first=0
-done < <(DISPLAY="$DISPLAY_VAL" xdotool search --onlyvisible --name "" 2>/dev/null)
+done < <(DISPLAY="$DISPLAY_VAL" xdotool search --onlyvisible --name "." 2>/dev/null)
 echo ""
 echo "]"
